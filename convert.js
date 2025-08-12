@@ -1,6 +1,6 @@
-import { PDFDocument } from "pdf-lib";
-import fs from "fs";
-import path from "path";
+const { PDFDocument } = require("pdf-lib");
+const fs = require("fs");
+const path = require("path");
 
 async function main() {
   const [, , inputPath] = process.argv;
@@ -29,6 +29,15 @@ async function main() {
       /^yes\d+$/i.test(name)
     );
   });
+  targetFields.push(
+    " American IndianAlaska Native",
+    "American IndianAlaska Native",
+    "Asian Pacific Islander",
+    "Hispanic",
+    "Hispanic1",
+    "Native HawaiianOther Pacific Islander",
+    "Decline to provide"
+  );
   console.log("Target fields to convert:", targetFields);
 
   // Update target fields
