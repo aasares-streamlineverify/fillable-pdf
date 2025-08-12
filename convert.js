@@ -43,27 +43,33 @@ async function main() {
 
       // Create a single new radio group for all options
       const newRadioGroupName = `${fieldName}_modified`;
-      const newRadio = form.createRadioGroup(newRadioGroupName);
-
-      // Process each radio button widget
+      
+      // Create radio group and collect all option data first
+      const optionData = [];
       widgets.forEach((widget, i) => {
-        try {
-          const rect = widget.getRectangle();
-          const pageRef = widget.P();
-
-          // Find which page this widget belongs to
-          let targetPage = pages[0]; // default to first page
-          for (let pageIndex = 0; pageIndex < pages.length; pageIndex++) {
-            if (pages[pageIndex].ref === pageRef) {
-              targetPage = pages[pageIndex];
-              break;
-            }
+        const rect = widget.getRectangle();
+        const pageRef = widget.P();
+        
+        // Find which page this widget belongs to
+        let targetPage = pages[0]; // default to first page
+        for (let pageIndex = 0; pageIndex < pages.length; pageIndex++) {
+          if (pages[pageIndex].ref === pageRef) {
+            targetPage = pages[pageIndex];
+            break;
           }
-
-          // Use custom name if available, otherwise use generic naming
-          const optionValue = customNames[i] || `option_${i}`;
-
-          // Add this option to the same radio group
+        }
+        
+        const optionValue = customNames[i] || `option_${i}`;
+        optionData.push({ optionValue, targetPage, rect });
+      });
+      
+      // Create the radio group
+      const newRadio = form.createRadioGroup(newRadioGroupName);
+      
+      // Add all options to the radio group
+      optionData.forEach(({ optionValue, targetPage, rect }, i) => {
+        try {
+          // Add this option to the same radio group with the specific value
           newRadio.addOptionToPage(optionValue, targetPage, rect);
 
           console.log(
@@ -73,7 +79,7 @@ async function main() {
           );
         } catch (e) {
           console.error(
-            `Error processing radio widget ${i} for field "${fieldName}":`,
+            `Error adding option ${optionValue} to radio group:`,
             e.message
           );
         }
@@ -91,7 +97,7 @@ async function main() {
 
   // Process text fields to convert to checkboxes
   const updatedFieldNames = form.getFields().map((f) => f.getName());
-  
+
   // Find fields that are exactly "No", "Yes" or start with "No" or "Yes" followed by a number
   const targetFields = updatedFieldNames.filter((name) => {
     const lowerName = name.toLowerCase();
