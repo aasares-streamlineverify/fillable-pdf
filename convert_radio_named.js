@@ -43,6 +43,10 @@ async function main() {
 
       const customNames = FIELD_MAPPINGS[fieldName] || [];
 
+      // Create a single new radio group for all options
+      const newRadioGroupName = `${fieldName}_modified`;
+      const newRadio = form.createRadioGroup(newRadioGroupName);
+
       // Process each radio button widget
       widgets.forEach((widget, i) => {
         try {
@@ -59,13 +63,13 @@ async function main() {
           }
 
           // Use custom name if available, otherwise use generic naming
-          const optionName = customNames[i] || `option_${i}`;
-          const newRadioName = `${fieldName}_${optionName}`;
-          const newRadio = form.createRadioGroup(newRadioName);
-          newRadio.addOptionToPage(optionName, targetPage, rect);
+          const optionValue = customNames[i] || `option_${i}`;
+
+          // Add this option to the same radio group
+          newRadio.addOptionToPage(optionValue, targetPage, rect);
 
           console.log(
-            `Created unique radio button: "${newRadioName}" on page ${
+            `Added option "${optionValue}" to radio group "${newRadioGroupName}" on page ${
               pages.indexOf(targetPage) + 1
             }`
           );
