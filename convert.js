@@ -10,7 +10,7 @@ const FIELD_MAPPINGS = {
   "Yes/No 1": ["Yes", "No"],
 };
 
-async function main() {
+const main = async () => {
   const [, , inputPath] = process.argv;
   if (!inputPath) {
     console.error("Usage: node convert.js <input-pdf-path>");
@@ -158,6 +158,6 @@ async function main() {
   const outputPath = path.join(path.dirname(absInputPath), "modified.pdf");
   fs.writeFileSync(outputPath, out);
   console.log(`Modified PDF saved to ${outputPath}`);
-}
+};
 
 main();

@@ -1,12 +1,16 @@
-import { useRef, useEffect } from "react";
+import { useRef, useEffect, useState } from "react";
 import { Document, Page } from "react-pdf";
 import { useValues } from "./ValuesContext";
+import SignatureField from "./SignatureField";
+import { Button } from "@mui/material";
 import "react-pdf/dist/Page/AnnotationLayer.css";
 import "react-pdf/dist/Page/TextLayer.css";
 
 const PdfWithState = () => {
   const containerRef = useRef(null);
   const { setValues, pdfToTest } = useValues();
+  const [signatures, setSignatures] = useState([]);
+  const [showAddSignature, setShowAddSignature] = useState(false);
 
   useEffect(() => {
     const el = containerRef.current;
@@ -49,11 +53,69 @@ const PdfWithState = () => {
     };
   }, [setValues]);
 
+  const handleSignatureUpdate = (signatureData, position, signatureId) => {
+    setSignatures((prev) => {
+      const updated = prev.map((sig) =>
+        sig.id === signatureId ? { ...sig, data: signatureData, position } : sig
+      );
+      return updated;
+    });
+
+    setValues((v) => ({
+      ...v,
+      [`signature_${signatureId}`]: {
+        data: signatureData,
+        position,
+      },
+    }));
+  };
+
+  const addSignature = () => {
+    const newSignature = {
+      id: Date.now(),
+      data: null,
+      position: { x: 100, y: 100 },
+    };
+
+    setSignatures((prev) => [...prev, newSignature]);
+    setShowAddSignature(false);
+  };
+
+  const removeSignature = (signatureId) => {
+    setSignatures((prev) => prev.filter((sig) => sig.id !== signatureId));
+    setValues((v) => {
+      const updated = { ...v };
+      delete updated[`signature_${signatureId}`];
+      return updated;
+    });
+  };
+
   return (
-    <div ref={containerRef}>
-      <Document file={pdfToTest}>
-        <Page pageNumber={1} renderAnnotationLayer={true} renderForms={true} />
-      </Document>
+    <div style={{ position: "relative" }}>
+      <div style={{ marginBottom: "10px" }}>
+        <Button onClick={addSignature}>Add Signature Field</Button>
+      </div>
+
+      <div ref={containerRef}>
+        <Document file={pdfToTest}>
+          <Page
+            pageNumber={1}
+            renderAnnotationLayer={true}
+            renderForms={true}
+          />
+        </Document>
+
+        {signatures.map((signature) => (
+          <SignatureField
+            key={signature.id}
+            initialPosition={signature.position}
+            onSignatureUpdate={(data, position) =>
+              handleSignatureUpdate(data, position, signature.id)
+            }
+            onRemove={() => removeSignature(signature.id)}
+          />
+        ))}
+      </div>
     </div>
   );
 };
