@@ -36,6 +36,7 @@ async function main() {
     if (field.constructor.name === "PDFRadioGroup") {
       console.log(`\nProcessing radio button group: "${fieldName}"`);
 
+      console.log(field.getOptions());
       const widgets = field.acroField.getWidgets();
       console.log(`Found ${widgets.length} radio button options`);
 
@@ -43,32 +44,29 @@ async function main() {
 
       // Create a single new radio group for all options
       const newRadioGroupName = `${fieldName}_modified`;
-      
-      // Create radio group and collect all option data first
-      const optionData = [];
-      widgets.forEach((widget, i) => {
-        const rect = widget.getRectangle();
-        const pageRef = widget.P();
-        
-        // Find which page this widget belongs to
-        let targetPage = pages[0]; // default to first page
-        for (let pageIndex = 0; pageIndex < pages.length; pageIndex++) {
-          if (pages[pageIndex].ref === pageRef) {
-            targetPage = pages[pageIndex];
-            break;
-          }
-        }
-        
-        const optionValue = customNames[i] || `option_${i}`;
-        optionData.push({ optionValue, targetPage, rect });
-      });
-      
-      // Create the radio group
       const newRadio = form.createRadioGroup(newRadioGroupName);
-      
-      // Add all options to the radio group
-      optionData.forEach(({ optionValue, targetPage, rect }, i) => {
+
+      // get values
+      const optionValues = field.getOptions().map((opt) => opt.getValue());
+
+      // Process each radio button widget
+      widgets.forEach((widget, i) => {
         try {
+          const rect = widget.getRectangle();
+          const pageRef = widget.P();
+
+          // Find which page this widget belongs to
+          let targetPage = pages[0]; // default to first page
+          for (let pageIndex = 0; pageIndex < pages.length; pageIndex++) {
+            if (pages[pageIndex].ref === pageRef) {
+              targetPage = pages[pageIndex];
+              break;
+            }
+          }
+
+          // Use custom name if available, otherwise use generic naming
+          const optionValue = customNames[i] || `option_${i}`;
+
           // Add this option to the same radio group with the specific value
           newRadio.addOptionToPage(optionValue, targetPage, rect);
 
@@ -79,7 +77,7 @@ async function main() {
           );
         } catch (e) {
           console.error(
-            `Error adding option ${optionValue} to radio group:`,
+            `Error processing radio widget ${i} for field "${fieldName}":`,
             e.message
           );
         }

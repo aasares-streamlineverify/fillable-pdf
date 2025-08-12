@@ -25,10 +25,18 @@ const PdfWithState = () => {
 
       const key = t.name || t.id || t.getAttribute("data-annotation-id");
       if (!key) return;
-      if (t.type === "radio") console.log(t);
+      let value;
+      if (t.type === "checkbox") {
+        value = t.checked;
+      } else if (t.type === "radio") {
+        value = t.getAttribute("data-element-id");
+      } else {
+        value = t.value;
+      }
+
       setValues((v) => ({
         ...v,
-        [key]: t.type === "checkbox" ? t.checked : t.value,
+        [key]: value,
       }));
     };
 
