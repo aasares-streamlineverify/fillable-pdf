@@ -76,9 +76,9 @@ const PdfWithState = () => {
 
   return (
     <div style={{ position: "relative" }}>
-      <div style={{ marginBottom: "10px" }}>
+      {/* <div style={{ marginBottom: "10px" }}>
         <Button onClick={addSignature}>Add Signature Field</Button>
-      </div>
+      </div> */}
 
       <div ref={containerRef}>
         <Document file={pdfToTest}>

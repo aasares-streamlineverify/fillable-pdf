@@ -62,8 +62,12 @@ const PdfDialog = ({ open, onClose }) => {
       const pageHeight = firstPage.getHeight();
       console.log(pageHeight, "PAGE HEIGHT");
       const x = signature?.position.x || 0;
-      const y =
-        pageHeight - Math.abs(signature.position?.y || 0) - imageDims.height;
+      // const y =
+      //   pageHeight -
+      //   Math.abs(signature.position?.y || 0) -
+      //   77 -
+      //   imageDims.height;
+      const y = Math.abs(signature.position?.y) - imageDims.height;
 
       if (image) {
         const page = pdfDoc.getPage(0);
