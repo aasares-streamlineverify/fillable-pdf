@@ -51,19 +51,17 @@ const PdfDialog = ({ open, onClose }) => {
         kindActionMap[kind](field, val);
       }
 
-      // Get image dimensions
-
       let image;
       if (signature?.data?.startsWith("data:image/png")) {
         image = await pdfDoc.embedPng(signature.data);
       }
       if (image) {
         const page = pdfDoc.getPage(0);
-        console.log(image, "IMAGE");
         const imageDims = image.scale(1);
 
         const x = signature?.position.x || 0;
         const y = Math.abs(signature.position?.y) - imageDims.height;
+        console.log(`Value of y is ${y}`);
 
         page.drawImage(image, {
           x,

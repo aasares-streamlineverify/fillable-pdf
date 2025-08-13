@@ -9,6 +9,7 @@ import "react-pdf/dist/Page/TextLayer.css";
 const PdfWithState = () => {
   const containerRef = useRef(null);
   const { setValues, pdfToTest, signature, setSignature } = useValues();
+  const [numPages, setNumPages] = useState(null);
   const [signatures, setSignatures] = useState([]);
   const [showAddSignature, setShowAddSignature] = useState(false);
 
@@ -53,12 +54,13 @@ const PdfWithState = () => {
     };
   }, [setValues]);
 
-  const addSignature = () => {
+  const addSignature = (pageNumber) => {
     const newSignature = {
       id: Date.now(),
       data: null,
       // position: { x: 180, y: -328 },
       position: { x: 180, y: -328 },
+      pageNumber,
     };
 
     setSignature(newSignature);
@@ -74,15 +76,24 @@ const PdfWithState = () => {
     });
   };
 
+  const onLoadSuccess = ({ numPages }) => {
+    console.log(`PDF loaded with ${numPages} pages`);
+    setNumPages(numPages);
+  };
+
   return (
     <div style={{ position: "relative" }}>
       <div ref={containerRef}>
-        <Document file={pdfToTest}>
-          <Page
-            pageNumber={1}
-            renderAnnotationLayer={true}
-            renderForms={true}
-          />
+        <Document file={pdfToTest} onLoadSuccess={onLoadSuccess}>
+          {numPages &&
+            Array.from({ length: numPages }, (_, idx) => (
+              <Page
+                key={idx + 1}
+                pageNumber={idx + 1}
+                renderAnnotationLayer={true}
+                renderForms={true}
+              />
+            ))}
         </Document>
 
         {signature?.id && (

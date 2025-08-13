@@ -39,44 +39,13 @@ const SignatureField = ({
     }
   };
 
-  // const saveSignature = () => {
-  //   if (sigCanvasRef.current && !sigCanvasRef.current.isEmpty()) {
-  //     // Create a smaller canvas for the saved signature
-  //     const canvas = sigCanvasRef.current.getCanvas();
-  //     const smallCanvas = document.createElement("canvas");
-  //     const ctx = smallCanvas.getContext("2d");
-
-  //     // Set smaller dimensions (adjust these values to make it smaller/larger)
-  //     // smallCanvas.width = 300; // Change this to make wider/narrower
-  //     // smallCanvas.height = 150; // Change this to make taller/shorter
-
-  //     // Draw the original signature onto the smaller canvas
-  //     ctx.drawImage(canvas, 0, 0, smallCanvas.width, smallCanvas.height);
-
-  //     const dataURL = smallCanvas.toDataURL("image/png");
-  //     setSignatureData(dataURL);
-  //     setShowCanvas(false);
-  //     onSignatureUpdate && onSignatureUpdate(dataURL, position);
-  //   }
-  // };
-
-  // const saveSignature = () => {
-  //   if (sigCanvasRef.current && !sigCanvasRef.current.isEmpty()) {
-  //     const canvas = sigCanvasRef.current.getCanvas();
-  //     const dataURL = canvas.toDataURL("image/png");
-  //     setSignatureData(dataURL);
-  //     setShowCanvas(false);
-  //     onSignatureUpdate && onSignatureUpdate(dataURL, position);
-  //   }
-  // };
-
   const saveSignature = () => {
     if (sigCanvasRef.current && !sigCanvasRef.current.isEmpty()) {
       const canvas = sigCanvasRef.current.getCanvas();
 
       // Set your desired output size here
-      const outputWidth = 250; // e.g., half the original width
-      const outputHeight = 100; // e.g., half the original height
+      const outputWidth = 250;
+      const outputHeight = 100;
 
       const scaledCanvas = document.createElement("canvas");
       scaledCanvas.width = outputWidth;
@@ -111,7 +80,6 @@ const SignatureField = ({
 
   return (
     <>
-      {/* Signature Canvas Dialog */}
       <Dialog
         open={showCanvas}
         onClose={() => setShowCanvas(false)}
