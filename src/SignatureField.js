@@ -39,21 +39,54 @@ const SignatureField = ({
     }
   };
 
+  // const saveSignature = () => {
+  //   if (sigCanvasRef.current && !sigCanvasRef.current.isEmpty()) {
+  //     // Create a smaller canvas for the saved signature
+  //     const canvas = sigCanvasRef.current.getCanvas();
+  //     const smallCanvas = document.createElement("canvas");
+  //     const ctx = smallCanvas.getContext("2d");
+
+  //     // Set smaller dimensions (adjust these values to make it smaller/larger)
+  //     // smallCanvas.width = 300; // Change this to make wider/narrower
+  //     // smallCanvas.height = 150; // Change this to make taller/shorter
+
+  //     // Draw the original signature onto the smaller canvas
+  //     ctx.drawImage(canvas, 0, 0, smallCanvas.width, smallCanvas.height);
+
+  //     const dataURL = smallCanvas.toDataURL("image/png");
+  //     setSignatureData(dataURL);
+  //     setShowCanvas(false);
+  //     onSignatureUpdate && onSignatureUpdate(dataURL, position);
+  //   }
+  // };
+
+  // const saveSignature = () => {
+  //   if (sigCanvasRef.current && !sigCanvasRef.current.isEmpty()) {
+  //     const canvas = sigCanvasRef.current.getCanvas();
+  //     const dataURL = canvas.toDataURL("image/png");
+  //     setSignatureData(dataURL);
+  //     setShowCanvas(false);
+  //     onSignatureUpdate && onSignatureUpdate(dataURL, position);
+  //   }
+  // };
+
   const saveSignature = () => {
     if (sigCanvasRef.current && !sigCanvasRef.current.isEmpty()) {
-      // Create a smaller canvas for the saved signature
       const canvas = sigCanvasRef.current.getCanvas();
-      const smallCanvas = document.createElement("canvas");
-      const ctx = smallCanvas.getContext("2d");
 
-      // Set smaller dimensions (adjust these values to make it smaller/larger)
-      smallCanvas.width = 150; // Change this to make wider/narrower
-      smallCanvas.height = 75; // Change this to make taller/shorter
+      // Set your desired output size here
+      const outputWidth = 250; // e.g., half the original width
+      const outputHeight = 100; // e.g., half the original height
 
-      // Draw the original signature onto the smaller canvas
-      ctx.drawImage(canvas, 0, 0, smallCanvas.width, smallCanvas.height);
+      const scaledCanvas = document.createElement("canvas");
+      scaledCanvas.width = outputWidth;
+      scaledCanvas.height = outputHeight;
+      const ctx = scaledCanvas.getContext("2d");
 
-      const dataURL = smallCanvas.toDataURL("image/png");
+      // Draw the original signature onto the new, scaled canvas
+      ctx.drawImage(canvas, 0, 0, outputWidth, outputHeight);
+
+      const dataURL = scaledCanvas.toDataURL("image/png");
       setSignatureData(dataURL);
       setShowCanvas(false);
       onSignatureUpdate && onSignatureUpdate(dataURL, position);
