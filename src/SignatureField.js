@@ -57,7 +57,6 @@ const SignatureField = ({
       setSignatureData(dataURL);
       setShowCanvas(false);
       onSignatureUpdate && onSignatureUpdate(dataURL, position);
-      alert("ehllo world");
     }
   };
 
