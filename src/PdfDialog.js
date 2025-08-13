@@ -41,8 +41,8 @@ const PdfDialog = ({ open, onClose }) => {
 
       const pdfDoc = await PDFDocument.load(bytes);
       const form = pdfDoc.getForm();
-      const pages = pdfDoc.getPages();
-      const firstPage = pages[0];
+      // const pages = pdfDoc.getPages();
+      // const firstPage = pages[0];
 
       for (const [name, val] of Object.entries(values)) {
         const field = form.getField(name);
@@ -54,24 +54,17 @@ const PdfDialog = ({ open, onClose }) => {
       // Get image dimensions
 
       let image;
-      if (signature?.data.startsWith("data:image/png")) {
+      if (signature?.data?.startsWith("data:image/png")) {
         image = await pdfDoc.embedPng(signature.data);
       }
-      const imageDims = image.scale(1);
-
-      const pageHeight = firstPage.getHeight();
-      console.log(pageHeight, "PAGE HEIGHT");
-      const x = signature?.position.x || 0;
-      // const y =
-      //   pageHeight -
-      //   Math.abs(signature.position?.y || 0) -
-      //   77 -
-      //   imageDims.height;
-      const y = Math.abs(signature.position?.y) - imageDims.height;
-
       if (image) {
         const page = pdfDoc.getPage(0);
         console.log(image, "IMAGE");
+        const imageDims = image.scale(1);
+
+        const x = signature?.position.x || 0;
+        const y = Math.abs(signature.position?.y) - imageDims.height;
+
         page.drawImage(image, {
           x,
           y,
