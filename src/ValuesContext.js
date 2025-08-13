@@ -10,7 +10,15 @@ export const ValuesProvider = ({ children }) => {
   // const pdfToTest = "/modified_radio_named.pdf";
   const pdfToTest = "/driscoll.pdf";
   return (
-    <ValuesContext.Provider value={{ values, setValues, pdfToTest }}>
+    <ValuesContext.Provider
+      value={{
+        values,
+        setValues,
+        pdfToTest,
+        signature,
+        setSignature,
+      }}
+    >
       {children}
     </ValuesContext.Provider>
   );

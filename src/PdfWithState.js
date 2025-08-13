@@ -8,7 +8,7 @@ import "react-pdf/dist/Page/TextLayer.css";
 
 const PdfWithState = () => {
   const containerRef = useRef(null);
-  const { setValues, pdfToTest } = useValues();
+  const { setValues, pdfToTest, signature, setSignature } = useValues();
   const [signatures, setSignatures] = useState([]);
   const [showAddSignature, setShowAddSignature] = useState(false);
 
@@ -53,31 +53,15 @@ const PdfWithState = () => {
     };
   }, [setValues]);
 
-  const handleSignatureUpdate = (signatureData, position, signatureId) => {
-    setSignatures((prev) => {
-      const updated = prev.map((sig) =>
-        sig.id === signatureId ? { ...sig, data: signatureData, position } : sig
-      );
-      return updated;
-    });
-
-    setValues((v) => ({
-      ...v,
-      [`signature_${signatureId}`]: {
-        data: signatureData,
-        position,
-      },
-    }));
-  };
-
   const addSignature = () => {
     const newSignature = {
       id: Date.now(),
       data: null,
-      position: { x: 180, y: -328 },
+      // position: { x: 180, y: -328 },
+      position: { x: 180, y: -720 },
     };
 
-    setSignatures((prev) => [...prev, newSignature]);
+    setSignature(newSignature);
     setShowAddSignature(false);
   };
 
@@ -105,16 +89,16 @@ const PdfWithState = () => {
           />
         </Document>
 
-        {signatures.map((signature) => (
+        {signature?.id && (
           <SignatureField
             key={signature.id}
             initialPosition={signature.position}
             onSignatureUpdate={(data, position) =>
-              handleSignatureUpdate(data, position, signature.id)
+              setSignature({ id: signature.id, data, position })
             }
-            onRemove={() => removeSignature(signature.id)}
+            onRemove={() => setSignature({})}
           />
-        ))}
+        )}
       </div>
     </div>
   );

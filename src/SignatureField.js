@@ -144,7 +144,6 @@ const SignatureField = ({
         </DialogActions>
       </Dialog>
 
-      {/* Draggable Signature Field */}
       <Draggable
         nodeRef={draggableRef}
         position={position}
@@ -174,7 +173,7 @@ const SignatureField = ({
             },
           }}
         >
-          {signatureData ? (
+          {signatureData?.id ? (
             <Box
               sx={{
                 position: "relative",
@@ -195,37 +194,6 @@ const SignatureField = ({
                   objectFit: "contain",
                 }}
               />
-
-              {/* Overlay with edit/delete buttons */}
-              {/* <Box>
-                <Button
-                  size="small"
-                  variant="contained"
-                  color="primary"
-                  startIcon={<EditIcon />}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setShowCanvas(true);
-                  }}
-                  sx={{ fontSize: "12px" }}
-                >
-                  Edit
-                </Button>
-                <Button
-                  size="small"
-                  variant="contained"
-                  color="error"
-                  startIcon={<DeleteIcon />}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    clearSignature();
-                    onRemove && onRemove();
-                  }}
-                  sx={{ fontSize: "12px" }}
-                >
-                  Delete
-                </Button>
-              </Box> */}
             </Box>
           ) : (
             <Box onClick={() => setShowCanvas(true)}>
