@@ -58,7 +58,7 @@ const PdfWithState = () => {
       id: Date.now(),
       data: null,
       // position: { x: 180, y: -328 },
-      position: { x: 180, y: -720 },
+      position: { x: 180, y: -328 },
     };
 
     setSignature(newSignature);

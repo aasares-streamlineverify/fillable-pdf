@@ -39,15 +39,6 @@ const SignatureField = ({
     }
   };
 
-  // const saveSignature = () => {
-  //   if (sigCanvasRef.current && !sigCanvasRef.current.isEmpty()) {
-  //     const dataURL = sigCanvasRef.current.toDataURL("image/png");
-  //     setSignatureData(dataURL);
-  //     setShowCanvas(false);
-  //     onSignatureUpdate && onSignatureUpdate(dataURL, position);
-  //   }
-  // };
-
   const saveSignature = () => {
     if (sigCanvasRef.current && !sigCanvasRef.current.isEmpty()) {
       // Create a smaller canvas for the saved signature
@@ -66,6 +57,7 @@ const SignatureField = ({
       setSignatureData(dataURL);
       setShowCanvas(false);
       onSignatureUpdate && onSignatureUpdate(dataURL, position);
+      alert("ehllo world");
     }
   };
 
@@ -173,7 +165,7 @@ const SignatureField = ({
             },
           }}
         >
-          {signatureData?.id ? (
+          {signatureData ? (
             <Box
               sx={{
                 position: "relative",
