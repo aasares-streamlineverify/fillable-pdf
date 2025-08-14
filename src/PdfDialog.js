@@ -87,12 +87,12 @@ const PdfDialog = ({ open, onClose }) => {
   return (
     <Dialog open={open} onClose={onClose} fullWidth maxWidth="l">
       <DialogTitle>Fill up the PDF</DialogTitle>
-      <DialogContent dividers>
+      <DialogContent divider>
         <Box
           sx={{
             height: "100%",
             overflow: "auto",
-            p: 2,
+            // p: 2,
           }}
         >
           <PdfWithState />

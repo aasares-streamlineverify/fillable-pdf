@@ -2,7 +2,7 @@ import { useRef, useEffect, useState } from "react";
 import { Document, Page } from "react-pdf";
 import { useValues } from "./ValuesContext";
 import SignatureField from "./SignatureField";
-import { Button } from "@mui/material";
+import { Button, Box, AppBar, Toolbar } from "@mui/material";
 import "react-pdf/dist/Page/AnnotationLayer.css";
 import "react-pdf/dist/Page/TextLayer.css";
 
@@ -83,6 +83,14 @@ const PdfWithState = () => {
 
   return (
     <div style={{ position: "relative" }}>
+      <Box sx={{ flexGrow: 1, position: 'sticky', top: '0', zIndex: 1100 }}>
+        <AppBar position="static">
+          <Toolbar>
+            <Button color="inherit">Save</Button>
+            <Button color="inherit">Cancel</Button>
+          </Toolbar>
+        </AppBar>
+      </Box>
       <div ref={containerRef}>
         <Document file={pdfToTest} onLoadSuccess={onLoadSuccess}>
           {numPages &&

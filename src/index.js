@@ -5,6 +5,8 @@ import App from './App';
 import { pdfjs } from 'react-pdf';
 import 'react-pdf/dist/Page/TextLayer.css';
 import 'react-pdf/dist/Page/AnnotationLayer.css';
+import theme from './theme'
+import { ThemeProvider } from '@mui/material/styles';
 
 
 pdfjs.GlobalWorkerOptions.workerSrc = new URL(
@@ -15,7 +17,9 @@ pdfjs.GlobalWorkerOptions.workerSrc = new URL(
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <React.StrictMode>
-    <App />
+    <ThemeProvider theme={theme}>
+      <App />
+    </ThemeProvider>
   </React.StrictMode>
 );
 
