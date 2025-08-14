@@ -92,10 +92,12 @@ const PdfWithState = () => {
 
       const doc = await PDFDocument.load(original.slice(0));
       const form = doc.getForm();
+      console.log(`Pages: ${doc.getPages().length}`)
+      setNumPages(doc.getPages().length)
 
       // place data ingestion here
-      const testField = form.getTextField('Provider Name');
-      testField.setText('John Doe');
+      // const testField = form.getTextField('Provider Name');
+      // testField.setText('John Doe');
 
       const bytes = await doc.save();              // ArrayBuffer or Uint8Array
       if (!cancelled) setPdfBytes(new Uint8Array(bytes));
@@ -198,37 +200,39 @@ const PdfWithState = () => {
       <Box sx={{ flexGrow: 1, position: 'sticky', top: '0', zIndex: 1100 }}>
         <AppBar position="static">
           <Toolbar variant='dense'>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+              <Tooltip title="Previous page">
+                <span>
+                  <IconButton
+                    size="small"
+                    color="inherit"
+                    onClick={() => setPage(p => Math.max(1, p - 1))}
+                  // disabled={!canPrev}
+                  >
+                    <ChevronLeftIcon />
+                  </IconButton>
+                </span>
+              </Tooltip>
+
+              <Typography variant="body2" sx={{ minWidth: 90, textAlign: 'center' }}>
+                Page {page} of {numPages ?? '…'}
+              </Typography>
+
+              <Tooltip title="Next page">
+                <span>
+                  <IconButton
+                    size="small"
+                    color="inherit"
+                    onClick={() => setPage(p => Math.min(numPages ?? p, p + 1))}
+                  // disabled={!canNext}
+                  >
+                    <ChevronRightIcon />
+                  </IconButton>
+                </span>
+              </Tooltip>
+            </Box>
+
             <Box sx={{ flexGrow: 1 }} />
-            <Typography
-              component="div"
-              sx={{ display: 'contents' }}
-            >
-              Page 1
-              {/* <TextField
-              variant="outlined"
-              size="small"
-              // value={controller.state.pageNumber}
-              value={1}
-              InputProps={{
-                sx: {
-                  border: '1px solid #FFF',
-                  color: '#FFF',
-                  margin: '0 5px',
-                  '& input': {
-                    width: '2em',
-                    textAlign: 'center',
-                    padding: '5px',
-                  },
-                },
-              }}
-              // onKeyPress={controller.actions.jumpToPage}
-              onKeyPress={() => console.log('keypress')}
-            /> */}
-              of
-              {' '}
-              {/* {controller.state.totalPages} */}
-              {3}
-            </Typography>
             <Box sx={{ flexGrow: 1 }} />
             {true && (
               <>
