@@ -32,49 +32,75 @@ const PdfWithState = () => {
   const [signatures, setSignatures] = useState([]);
   const [showAddSignature, setShowAddSignature] = useState(false);
 
+  // useEffect(() => {
+  //   const prefill = async () => {
+  //     try {
+  //       const response = await fetch(pdfToTest);
+  //       const originalBytes = await response.arrayBuffer();
+
+  //       // Create a copy to avoid detachment issues
+  //       const bytesCopy = originalBytes.slice();
+
+  //       const pdfDoc = await PDFDocument.load(bytesCopy);
+  //       const form = pdfDoc.getForm();
+
+  //       const prefillData = {
+  //         'Provider Name': 'John Doe'
+  //       }
+
+  //       // Object.entries(prefillData).forEach(([fieldName, value]) => {
+  //       //   try {
+  //       //     const field = form.getTextField(fieldName);
+  //       //     field.setText(value);
+  //       //   } catch (e) {
+  //       //     console.warn(`Field ${fieldName} not found or not a text field`);
+  //       //   }
+  //       // });
+
+  //       // const testField = form.getTextField('Provider Name');
+  //       // testField.setText('John Doe');
+  //       const filledBytes = await pdfDoc.save();
+
+  //       const blob = new Blob([filledBytes], { type: 'application/pdf' });
+  //       const url = URL.createObjectURL(blob);
+  //       setPdfBytes(url);
+  //       // Create a new ArrayBuffer for react-pdf
+  //       // const uint8Array = new Uint8Array(filledBytes);
+  //       // setPdfBytes(uint8Array);
+  //       // console.log('finished');
+
+  //       return () => {
+  //         if (url) URL.revokeObjectURL(url);   // avoid leaks
+  //         setPdfBytes(null);
+  //       };
+
+  //     } catch (error) {
+  //       console.error('Prefill error:', error);
+  //     }
+  //   };
+
+  //   prefill();
+  // }, [pdfToTest]);
+
   useEffect(() => {
-    const prefill = async () => {
-      try {
-        const response = await fetch(pdfToTest);
-        const originalBytes = await response.arrayBuffer();
+    let url: string | null = null;
 
-        // Create a copy to avoid detachment issues
-        const bytesCopy = originalBytes.slice();
+    (async () => {
+      const response = await fetch(pdfToTest);
+      const originalBytes = await response.arrayBuffer();
 
-        const pdfDoc = await PDFDocument.load(bytesCopy);
-        const form = pdfDoc.getForm();
+      const pdfDoc = await PDFDocument.load(originalBytes.slice(0));
+      // (optional editing) …
+      const filledBytes = await pdfDoc.save();
 
-        const prefillData = {
-          'Provider Name': 'John Doe'
-        }
+      url = URL.createObjectURL(new Blob([filledBytes], { type: 'application/pdf' }));
+      setPdfBytes(url);
+    })().catch(err => console.error('Prefill error:', err));
 
-        // Object.entries(prefillData).forEach(([fieldName, value]) => {
-        //   try {
-        //     const field = form.getTextField(fieldName);
-        //     field.setText(value);
-        //   } catch (e) {
-        //     console.warn(`Field ${fieldName} not found or not a text field`);
-        //   }
-        // });
-
-        const testField = form.getTextField('Provider Name');
-        testField.setText('John Doe');
-        const filledBytes = await pdfDoc.save();
-
-        const blob = new Blob([filledBytes], { type: 'application/pdf' });
-        const url = URL.createObjectURL(blob);
-        setPdfBytes(url);
-        // Create a new ArrayBuffer for react-pdf
-        // const uint8Array = new Uint8Array(filledBytes);
-        // setPdfBytes(uint8Array);
-        // console.log('finished');
-
-      } catch (error) {
-        console.error('Prefill error:', error);
-      }
+    return () => {
+      if (url) URL.revokeObjectURL(url);   // avoid leaks
+      setPdfBytes(null);
     };
-
-    prefill();
   }, [pdfToTest]);
 
   useEffect(() => {
@@ -247,7 +273,7 @@ const PdfWithState = () => {
           justifyContent: "center",
           alignItems: "center",
         }}>
-          <Document file={pdfBytes} onLoadSuccess={onLoadSuccess} onLoadError={(error) => console.error(`PDF Load Error: ${error}`)}>
+          <Document file={pdfBytes}>
             {/* {numPages &&
               Array.from({ length: numPages }, (_, idx) => (
                 <Page
