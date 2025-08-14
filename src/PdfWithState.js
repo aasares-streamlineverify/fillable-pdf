@@ -163,7 +163,8 @@ const PdfWithState = () => {
                     color="inherit"
                     aria-label="signature"
                     // onClick={controller.actions.signatureDialog.open}
-                    onClick={() => console.log('add signature')}
+                    // onClick={() => console.log('add signature')}
+                    onClick={() => addSignature(1)}
                   >
                     <BorderColorIcon />
                   </IconButton>
