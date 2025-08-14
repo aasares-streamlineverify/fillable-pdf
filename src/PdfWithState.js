@@ -2,7 +2,25 @@ import { useRef, useEffect, useState } from "react";
 import { Document, Page } from "react-pdf";
 import { useValues } from "./ValuesContext";
 import SignatureField from "./SignatureField";
-import { Button, Box, AppBar, Toolbar } from "@mui/material";
+import {
+  AppBar,
+  Toolbar,
+  IconButton,
+  Box,
+  Container,
+  Grid,
+  Typography,
+  Tooltip,
+  TextField
+} from '@mui/material';
+import {
+  BorderColor as BorderColorIcon,
+  ChevronLeft as ChevronLeftIcon,
+  ChevronRight as ChevronRightIcon,
+  Download as DownloadIcon,
+  TextFields as TextFieldsIcon,
+  Backspace as BackspaceIcon,
+} from '@mui/icons-material';
 import "react-pdf/dist/Page/AnnotationLayer.css";
 import "react-pdf/dist/Page/TextLayer.css";
 
@@ -85,9 +103,83 @@ const PdfWithState = () => {
     <div style={{ position: "relative" }}>
       <Box sx={{ flexGrow: 1, position: 'sticky', top: '0', zIndex: 1100 }}>
         <AppBar position="static">
-          <Toolbar>
-            <Button color="inherit">Save</Button>
-            <Button color="inherit">Cancel</Button>
+          <Toolbar variant='dense'>
+            <Box sx={{ flexGrow: 1 }} />
+            <Typography
+              component="div"
+              sx={{ display: 'contents' }}
+            >
+              Page 1
+              {/* <TextField
+              variant="outlined"
+              size="small"
+              // value={controller.state.pageNumber}
+              value={1}
+              InputProps={{
+                sx: {
+                  border: '1px solid #FFF',
+                  color: '#FFF',
+                  margin: '0 5px',
+                  '& input': {
+                    width: '2em',
+                    textAlign: 'center',
+                    padding: '5px',
+                  },
+                },
+              }}
+              // onKeyPress={controller.actions.jumpToPage}
+              onKeyPress={() => console.log('keypress')}
+            /> */}
+              of
+              {' '}
+              {/* {controller.state.totalPages} */}
+              {3}
+            </Typography>
+            <Box sx={{ flexGrow: 1 }} />
+            {true && (
+              <>
+                <Tooltip title="Download">
+                  <IconButton
+                    color="inherit"
+                    aria-label="download"
+                    // onClick={controller.actions.downloadPDF}
+                    onClick={() => console.log('hello world')}
+                  >
+                    <DownloadIcon sx={{ fontSize: '1.68rem', marginTop: '2px' }} />
+                  </IconButton>
+                </Tooltip>
+                <Tooltip title="Clear">
+                  <IconButton
+                    color="inherit"
+                    aria-label="clear"
+                    // onClick={controller.actions.clearObjects}
+                    onClick={() => console.log('clear')}
+                  >
+                    <BackspaceIcon />
+                  </IconButton>
+                </Tooltip>
+                <Tooltip title="Add Signature">
+                  <IconButton
+                    color="inherit"
+                    aria-label="signature"
+                    // onClick={controller.actions.signatureDialog.open}
+                    onClick={() => console.log('add signature')}
+                  >
+                    <BorderColorIcon />
+                  </IconButton>
+                </Tooltip>
+                <Tooltip title="Add Text">
+                  <IconButton
+                    color="inherit"
+                    aria-label="text"
+                    // onClick={controller.actions.textDialog.open}
+                    onClick={() => console.log('add text')}
+                  >
+                    <TextFieldsIcon />
+                  </IconButton>
+                </Tooltip>
+              </>
+            )}
           </Toolbar>
         </AppBar>
       </Box>
@@ -115,7 +207,7 @@ const PdfWithState = () => {
           />
         )}
       </div>
-    </div>
+    </div >
   );
 };
 
