@@ -92,7 +92,6 @@ const PdfDialog = ({ open, onClose }) => {
           sx={{
             height: "100%",
             overflow: "auto",
-            // p: 2,
           }}
         >
           <PdfWithState />

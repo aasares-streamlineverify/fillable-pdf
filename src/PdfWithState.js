@@ -1,14 +1,13 @@
-import { useRef, useEffect, useState } from "react";
+import { useRef, useEffect, useState, useMemo } from "react";
 import { Document, Page } from "react-pdf";
 import { useValues } from "./ValuesContext";
 import SignatureField from "./SignatureField";
+import { PDFDocument } from "pdf-lib";
 import {
   AppBar,
   Toolbar,
   IconButton,
   Box,
-  Container,
-  Grid,
   Typography,
   Tooltip,
   TextField
@@ -26,10 +25,57 @@ import "react-pdf/dist/Page/TextLayer.css";
 
 const PdfWithState = () => {
   const containerRef = useRef(null);
+  const [pdfBytes, setPdfBytes] = useState(null)
   const { setValues, pdfToTest, signature, setSignature } = useValues();
   const [numPages, setNumPages] = useState(null);
+  const [page, setPage] = useState(1)
   const [signatures, setSignatures] = useState([]);
   const [showAddSignature, setShowAddSignature] = useState(false);
+
+  useEffect(() => {
+    const prefill = async () => {
+      try {
+        const response = await fetch(pdfToTest);
+        const originalBytes = await response.arrayBuffer();
+
+        // Create a copy to avoid detachment issues
+        const bytesCopy = originalBytes.slice();
+
+        const pdfDoc = await PDFDocument.load(bytesCopy);
+        const form = pdfDoc.getForm();
+
+        const prefillData = {
+          'Provider Name': 'John Doe'
+        }
+
+        // Object.entries(prefillData).forEach(([fieldName, value]) => {
+        //   try {
+        //     const field = form.getTextField(fieldName);
+        //     field.setText(value);
+        //   } catch (e) {
+        //     console.warn(`Field ${fieldName} not found or not a text field`);
+        //   }
+        // });
+
+        const testField = form.getTextField('Provider Name');
+        testField.setText('John Doe');
+        const filledBytes = await pdfDoc.save();
+
+        const blob = new Blob([filledBytes], { type: 'application/pdf' });
+        const url = URL.createObjectURL(blob);
+        setPdfBytes(url);
+        // Create a new ArrayBuffer for react-pdf
+        // const uint8Array = new Uint8Array(filledBytes);
+        // setPdfBytes(uint8Array);
+        // console.log('finished');
+
+      } catch (error) {
+        console.error('Prefill error:', error);
+      }
+    };
+
+    prefill();
+  }, [pdfToTest]);
 
   useEffect(() => {
     const el = containerRef.current;
@@ -70,7 +116,7 @@ const PdfWithState = () => {
       el.removeEventListener("input", onChange, true);
       el.removeEventListener("change", onChange, true);
     };
-  }, [setValues]);
+  }, [setValues, pdfBytes]);
 
   const addSignature = (pageNumber) => {
     const newSignature = {
@@ -98,6 +144,10 @@ const PdfWithState = () => {
     console.log(`PDF loaded with ${numPages} pages`);
     setNumPages(numPages);
   };
+
+  if (!pdfBytes) {
+    return <div>Loading PDF...</div>
+  }
 
   return (
     <div style={{ position: "relative" }}>
@@ -184,29 +234,48 @@ const PdfWithState = () => {
           </Toolbar>
         </AppBar>
       </Box>
-      <div ref={containerRef}>
-        <Document file={pdfToTest} onLoadSuccess={onLoadSuccess}>
-          {numPages &&
-            Array.from({ length: numPages }, (_, idx) => (
-              <Page
-                key={idx + 1}
-                pageNumber={idx + 1}
-                renderAnnotationLayer={true}
-                renderForms={true}
-              />
-            ))}
-        </Document>
+      <div style={{
+        position: "relative",
+        minHeight: "100vh",
+        background: "#e0e0e0", // gray background
+        display: "flex",
+        flexDirection: "column",
+      }}>
+        <div ref={containerRef} style={{
+          flex: 1,
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+        }}>
+          <Document file={pdfBytes} onLoadSuccess={onLoadSuccess} onLoadError={(error) => console.error(`PDF Load Error: ${error}`)}>
+            {/* {numPages &&
+              Array.from({ length: numPages }, (_, idx) => (
+                <Page
+                  key={idx + 1}
+                  pageNumber={idx + 1}
+                  renderAnnotationLayer={true}
+                  renderForms={true}
+                />
+              ))} */}
+            <Page
+              key={page}
+              pageNumber={page}
+              renderAnnotationLayer={true}
+              renderForms={true}
+            />
+          </Document>
 
-        {signature?.id && (
-          <SignatureField
-            key={signature.id}
-            initialPosition={signature.position}
-            onSignatureUpdate={(data, position) =>
-              setSignature({ id: signature.id, data, position })
-            }
-            onRemove={() => setSignature({})}
-          />
-        )}
+          {signature?.id && (
+            <SignatureField
+              key={signature.id}
+              initialPosition={signature.position}
+              onSignatureUpdate={(data, position) =>
+                setSignature({ id: signature.id, data, position })
+              }
+              onRemove={() => setSignature({})}
+            />
+          )}
+        </div>
       </div>
     </div >
   );
