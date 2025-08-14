@@ -31,6 +31,7 @@ const PdfWithState = () => {
   const [page, setPage] = useState(1)
   const [signatures, setSignatures] = useState([]);
   const [showAddSignature, setShowAddSignature] = useState(false);
+  const file = useMemo(() => (pdfBytes ? { data: pdfBytes } : null), [pdfBytes]);
 
   // useEffect(() => {
   //   const prefill = async () => {
@@ -83,24 +84,41 @@ const PdfWithState = () => {
   // }, [pdfToTest]);
 
   useEffect(() => {
-    let url: string | null = null;
+    let cancelled = false;
 
-    (async () => {
-      const response = await fetch(pdfToTest);
-      const originalBytes = await response.arrayBuffer();
+    const fillPdf = async () => {
+      const res = await fetch(pdfToTest);
+      const original = await res.arrayBuffer();
 
-      const pdfDoc = await PDFDocument.load(originalBytes.slice(0));
-      // (optional editing) …
-      const filledBytes = await pdfDoc.save();
+      const doc = await PDFDocument.load(original.slice(0));
+      const form = doc.getForm();
 
-      url = URL.createObjectURL(new Blob([filledBytes], { type: 'application/pdf' }));
-      setPdfBytes(url);
-    })().catch(err => console.error('Prefill error:', err));
+      // place data ingestion here
+      const testField = form.getTextField('Provider Name');
+      testField.setText('John Doe');
 
-    return () => {
-      if (url) URL.revokeObjectURL(url);   // avoid leaks
-      setPdfBytes(null);
-    };
+      const bytes = await doc.save();              // ArrayBuffer or Uint8Array
+      if (!cancelled) setPdfBytes(new Uint8Array(bytes));
+    }
+
+    fillPdf()
+
+    // (async () => {
+    //   const res = await fetch(pdfToTest);
+    //   const original = await res.arrayBuffer();
+
+    //   const doc = await PDFDocument.load(original.slice(0));
+    //   const form = doc.getForm();
+
+    //   // place data ingestion here
+    //   // const testField = form.getTextField('Provider Name');
+    //   // testField.setText('John Doe');
+
+    //   const bytes = await doc.save();              // ArrayBuffer or Uint8Array
+    //   if (!cancelled) setPdfBytes(new Uint8Array(bytes));
+    // })().catch(console.error);
+
+    return () => { cancelled = true; };
   }, [pdfToTest]);
 
   useEffect(() => {
@@ -273,7 +291,7 @@ const PdfWithState = () => {
           justifyContent: "center",
           alignItems: "center",
         }}>
-          <Document file={pdfBytes}>
+          <Document file={file}>
             {/* {numPages &&
               Array.from({ length: numPages }, (_, idx) => (
                 <Page
