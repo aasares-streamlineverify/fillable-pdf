@@ -146,7 +146,7 @@ const PdfWithState = () => {
   }
 
   return (
-    <div style={{ position: "relative" }}>
+    <>
       <Box sx={{ flexGrow: 1, position: 'sticky', top: '0', zIndex: 1100 }}>
         <AppBar position="static">
           <Toolbar variant='dense'>
@@ -264,7 +264,9 @@ const PdfWithState = () => {
             ))}
         </div>
       </div>
-    </div >
+    </>
+    // <div style={{ position: "relative" }}>
+
   );
 };
 

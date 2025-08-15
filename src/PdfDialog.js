@@ -82,6 +82,7 @@ const PdfDialog = ({ open, onClose }) => {
         const page = pdfDoc.getPage(pageIndex);
         const pageWidthPts = page.getWidth();
         const pageHeightPts = page.getHeight();
+        console.log(`Width: ${pageWidthPts}, Height: ${pageHeightPts}`);
 
         // Desired drawn size; keep 1:1 with source pixels unless you store explicit width/height.
         const { width: imgW, height: imgH } = img.scale(1);
