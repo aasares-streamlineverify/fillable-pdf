@@ -21,23 +21,24 @@ import {
 
 const SignatureField = ({
   onSignatureUpdate,
-  initialPosition = { x: 50, y: 50 },
+  // initialPosition = { x: 50, y: 50 },
+  signature,
   onRemove,
 }) => {
   const sigCanvasRef = useRef(null);
   const draggableRef = useRef(null);
-  const [signatureData, setSignatureData] = useState(null);
+  const [signatureData, setSignatureData] = useState(signature.data);
   const [isDrawing, setIsDrawing] = useState(false);
   const [showCanvas, setShowCanvas] = useState(false);
-  const [position, setPosition] = useState(initialPosition);
+  const [position, setPosition] = useState({ x: signature.position.x, y: signature.position.y });
 
-  const clearSignature = () => {
-    if (sigCanvasRef.current) {
-      sigCanvasRef.current.clear();
-      setSignatureData(null);
-      onSignatureUpdate && onSignatureUpdate(null, position);
-    }
-  };
+  // const clearSignature = () => {
+  //   if (sigCanvasRef.current) {
+  //     sigCanvasRef.current.clear();
+  //     setSignatureData(null);
+  //     onSignatureUpdate && onSignatureUpdate(null, position);
+  //   }
+  // };
 
   const saveSignature = () => {
     if (sigCanvasRef.current && !sigCanvasRef.current.isEmpty()) {
@@ -127,7 +128,7 @@ const SignatureField = ({
         </DialogContent>
 
         <DialogActions sx={{ gap: 1 }}>
-          <Button onClick={clearSignature} variant="outlined" color="secondary">
+          <Button onClick={() => console.log('clear signature')} variant="outlined" color="secondary">
             Clear
           </Button>
           <Button onClick={saveSignature} variant="contained" color="primary">

@@ -258,7 +258,8 @@ const PdfWithState = () => {
             .map(sig => (
               <SignatureField
                 key={sig.id}
-                initialPosition={sig.position}
+                // initialPosition={sig.position}
+                signature={sig}
                 onSignatureUpdate={(data, position) => updateSignature(sig.id, data, position)}
               />
             ))}
