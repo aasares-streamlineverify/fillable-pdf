@@ -4,11 +4,11 @@ import {
   DialogContent,
   DialogActions,
   Button,
-  Box,
 } from "@mui/material";
 import { useValues } from "./ValuesContext";
 import PdfWithState from "./PdfWithState";
 import { PDFDocument } from "pdf-lib";
+import { useRef } from "react";
 
 const kindActionMap = {
   PDFTextField: (field, val) => {
@@ -32,6 +32,7 @@ const kindActionMap = {
 
 const PdfDialog = ({ open, onClose }) => {
   const { values, pdfToTest, signature, signatures } = useValues();
+  const scrollContainerRef = useRef(null);
 
   const handleSave = () => {
     const loadPdf = async () => {
@@ -85,15 +86,16 @@ const PdfDialog = ({ open, onClose }) => {
   return (
     <Dialog open={open} onClose={onClose} fullWidth maxWidth="l">
       <DialogTitle>Fill up the PDF</DialogTitle>
-      <DialogContent divider>
-        <Box
-          sx={{
-            height: "100%",
-            overflow: "auto",
-          }}
-        >
-          <PdfWithState />
-        </Box>
+      <DialogContent
+        ref={scrollContainerRef}
+        divider
+        sx={{
+          height: "80vh",
+          overflow: "auto",
+          padding: 0, // Remove default padding to prevent extra space
+        }}
+      >
+        <PdfWithState scrollContainerRef={scrollContainerRef} />
       </DialogContent>
       <DialogActions>
         <Button onClick={handleSave} variant="contained">

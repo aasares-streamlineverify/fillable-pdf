@@ -23,7 +23,7 @@ import {
 import "react-pdf/dist/Page/AnnotationLayer.css";
 import "react-pdf/dist/Page/TextLayer.css";
 
-const PdfWithState = () => {
+const PdfWithState = ({ scrollContainerRef }) => {
   const containerRef = useRef(null);
   const [pdfBytes, setPdfBytes] = useState(null)
   const { setValues, pdfToTest, signature, setSignature, signatures, setSignatures } = useValues();
@@ -127,6 +127,22 @@ const PdfWithState = () => {
     setSignatures(prev => prev.map(sig => sig.id === id ? { ...sig, data, position } : sig))
   }
 
+  // Function to scroll to the bottom of the PDF
+  const scrollToBottom = () => {
+    if (!scrollContainerRef?.current) {
+      console.error("Scroll container ref not found");
+      return;
+    }
+
+    const scrollEl = scrollContainerRef.current;
+
+    // Scroll to the bottom with smooth behavior
+    scrollEl.scrollTo({
+      top: scrollEl.scrollHeight,
+      behavior: "smooth"
+    });
+  };
+
   // const removeSignature = (signatureId) => {
   //   setSignatures((prev) => prev.filter((sig) => sig.id !== signatureId));
   //   setValues((v) => {
@@ -191,7 +207,7 @@ const PdfWithState = () => {
                     color="inherit"
                     aria-label="download"
                     // onClick={controller.actions.downloadPDF}
-                    onClick={() => console.log('hello world')}
+                    onClick={scrollToBottom}
                   >
                     <DownloadIcon sx={{ fontSize: '1.68rem', marginTop: '2px' }} />
                   </IconButton>
@@ -233,10 +249,10 @@ const PdfWithState = () => {
       </Box>
       <div style={{
         position: "relative",
-        minHeight: "100vh",
         background: "#e0e0e0", // gray background
         display: "flex",
         flexDirection: "column",
+        minHeight: "fit-content", // Changed from 100vh to fit-content
       }}>
         <div ref={containerRef} style={{
           flex: 1,
@@ -244,7 +260,7 @@ const PdfWithState = () => {
           justifyContent: "center",
           alignItems: "center",
         }}>
-          <Document file={file}>
+          <Document file={file} onLoadSuccess={onLoadSuccess}>
             <Page
               key={page}
               pageNumber={page}
