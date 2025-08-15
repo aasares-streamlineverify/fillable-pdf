@@ -64,8 +64,10 @@ const PdfDialog = ({ open, onClose }) => {
         const w = sig.boxSize?.width ?? 250;
         const h = sig.boxSize?.height ?? 100;
 
+        // Convert screen coordinates to PDF coordinates
+        // Screen: (0,0) at top-left, PDF: (0,0) at bottom-left
         const pdfX = x + (pageW / 2) - (w / 2);
-        const pdfY = y + (pageH / 2) - (h / 2)
+        const pdfY = pageH - (y + (pageH / 2) - (h / 2)) - h; // Flip Y coordinate
 
         page.drawImage(img, { x: pdfX, y: pdfY, width: w, height: h });
       }

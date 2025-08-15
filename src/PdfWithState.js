@@ -47,6 +47,8 @@ const PdfWithState = ({ scrollContainerRef }) => {
       // place data ingestion here
       // const testField = form.getTextField('Provider Name');
       // testField.setText('John Doe');
+      const testField = form.getTextField('Group Practice Name')
+      testField.setText('John Doe')
 
       const bytes = await doc.save();              // ArrayBuffer or Uint8Array
       if (!cancelled) setPdfBytes(new Uint8Array(bytes));
