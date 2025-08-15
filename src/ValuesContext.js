@@ -12,11 +12,26 @@ export const ValuesProvider = ({ children }) => {
   // });
 
   const [signature, setSignature] = useState({})
+  const [signatures, setSignatures] = useState([])
+  const [pdfBytes, setPdfBytes] = useState(null)
+
+  // const addOrUpdateSignature = (newSignature) => {
+  //   setSignatures(prev => {
+  //     const exists = prev.some(sig => sig.id === newSignature.id);
+
+  //     if (exists) {
+  //       return prev.map(sig =>
+  //         sig.id === newSignature.id ? { ...sig, ...newSignature } : sig
+  //       );
+  //     } else {
+  //       return [...prev, { ...newSignature, id: newSignature.id ?? Date.now() }];
+  //     }
+  //   });
+  // };
 
   // const pdfToTest = "/modified.pdf";
   const pdfToTest = "superior.pdf";
   // const pdfToTest = 'driscoll.pdf'
-  const [pdfBytes, setPdfBytes] = useState(null)
   // const pdfToTest = "/modified_radio_named.pdf";
   // const pdfToTest = "/modified_driscol.pdf";
   return (
@@ -27,6 +42,8 @@ export const ValuesProvider = ({ children }) => {
         pdfToTest,
         signature,
         setSignature,
+        signatures,
+        setSignatures
       }}
     >
       {children}

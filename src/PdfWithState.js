@@ -26,62 +26,11 @@ import "react-pdf/dist/Page/TextLayer.css";
 const PdfWithState = () => {
   const containerRef = useRef(null);
   const [pdfBytes, setPdfBytes] = useState(null)
-  const { setValues, pdfToTest, signature, setSignature } = useValues();
+  const { setValues, pdfToTest, signature, setSignature, signatures, setSignatures } = useValues();
   const [numPages, setNumPages] = useState(null);
   const [page, setPage] = useState(1)
-  const [signatures, setSignatures] = useState([]);
   const [showAddSignature, setShowAddSignature] = useState(false);
   const file = useMemo(() => (pdfBytes ? { data: pdfBytes } : null), [pdfBytes]);
-
-  // useEffect(() => {
-  //   const prefill = async () => {
-  //     try {
-  //       const response = await fetch(pdfToTest);
-  //       const originalBytes = await response.arrayBuffer();
-
-  //       // Create a copy to avoid detachment issues
-  //       const bytesCopy = originalBytes.slice();
-
-  //       const pdfDoc = await PDFDocument.load(bytesCopy);
-  //       const form = pdfDoc.getForm();
-
-  //       const prefillData = {
-  //         'Provider Name': 'John Doe'
-  //       }
-
-  //       // Object.entries(prefillData).forEach(([fieldName, value]) => {
-  //       //   try {
-  //       //     const field = form.getTextField(fieldName);
-  //       //     field.setText(value);
-  //       //   } catch (e) {
-  //       //     console.warn(`Field ${fieldName} not found or not a text field`);
-  //       //   }
-  //       // });
-
-  //       // const testField = form.getTextField('Provider Name');
-  //       // testField.setText('John Doe');
-  //       const filledBytes = await pdfDoc.save();
-
-  //       const blob = new Blob([filledBytes], { type: 'application/pdf' });
-  //       const url = URL.createObjectURL(blob);
-  //       setPdfBytes(url);
-  //       // Create a new ArrayBuffer for react-pdf
-  //       // const uint8Array = new Uint8Array(filledBytes);
-  //       // setPdfBytes(uint8Array);
-  //       // console.log('finished');
-
-  //       return () => {
-  //         if (url) URL.revokeObjectURL(url);   // avoid leaks
-  //         setPdfBytes(null);
-  //       };
-
-  //     } catch (error) {
-  //       console.error('Prefill error:', error);
-  //     }
-  //   };
-
-  //   prefill();
-  // }, [pdfToTest]);
 
   useEffect(() => {
     let cancelled = false;
@@ -104,21 +53,6 @@ const PdfWithState = () => {
     }
 
     fillPdf()
-
-    // (async () => {
-    //   const res = await fetch(pdfToTest);
-    //   const original = await res.arrayBuffer();
-
-    //   const doc = await PDFDocument.load(original.slice(0));
-    //   const form = doc.getForm();
-
-    //   // place data ingestion here
-    //   // const testField = form.getTextField('Provider Name');
-    //   // testField.setText('John Doe');
-
-    //   const bytes = await doc.save();              // ArrayBuffer or Uint8Array
-    //   if (!cancelled) setPdfBytes(new Uint8Array(bytes));
-    // })().catch(console.error);
 
     return () => { cancelled = true; };
   }, [pdfToTest]);
@@ -164,27 +98,43 @@ const PdfWithState = () => {
     };
   }, [setValues, pdfBytes]);
 
-  const addSignature = (pageNumber) => {
+  // const addSignature = (pageNumber) => {
+  //   const newSignature = {
+  //     id: Date.now(),
+  //     data: null,
+  //     // position: { x: 180, y: -328 },
+  //     position: { x: 180, y: -328 },
+  //     pageNumber,
+  //   };
+
+  //   setSignature(newSignature);
+  //   setShowAddSignature(false);
+  // };
+
+  const addSignature = (pageNumber, position = { x: 0, y: 0 }) => {
     const newSignature = {
       id: Date.now(),
       data: null,
-      // position: { x: 180, y: -328 },
-      position: { x: 180, y: -328 },
+      position,
       pageNumber,
     };
 
-    setSignature(newSignature);
-    setShowAddSignature(false);
-  };
+    setSignatures(prev => [...prev, newSignature])
+    console.log(signatures)
+  }
 
-  const removeSignature = (signatureId) => {
-    setSignatures((prev) => prev.filter((sig) => sig.id !== signatureId));
-    setValues((v) => {
-      const updated = { ...v };
-      delete updated[`signature_${signatureId}`];
-      return updated;
-    });
-  };
+  const updateSignature = (id, data, position) => {
+    setSignatures(prev => prev.map(sig => sig.id === id ? { ...sig, data, position } : sig))
+  }
+
+  // const removeSignature = (signatureId) => {
+  //   setSignatures((prev) => prev.filter((sig) => sig.id !== signatureId));
+  //   setValues((v) => {
+  //     const updated = { ...v };
+  //     delete updated[`signature_${signatureId}`];
+  //     return updated;
+  //   });
+  // };
 
   const onLoadSuccess = ({ numPages }) => {
     console.log(`PDF loaded with ${numPages} pages`);
@@ -260,9 +210,8 @@ const PdfWithState = () => {
                   <IconButton
                     color="inherit"
                     aria-label="signature"
-                    // onClick={controller.actions.signatureDialog.open}
-                    // onClick={() => console.log('add signature')}
-                    onClick={() => addSignature(1)}
+                    // position depends on the page number and pdf name...
+                    onClick={() => addSignature(page, { x: 0, y: 0 })}
                   >
                     <BorderColorIcon />
                   </IconButton>
@@ -296,15 +245,6 @@ const PdfWithState = () => {
           alignItems: "center",
         }}>
           <Document file={file}>
-            {/* {numPages &&
-              Array.from({ length: numPages }, (_, idx) => (
-                <Page
-                  key={idx + 1}
-                  pageNumber={idx + 1}
-                  renderAnnotationLayer={true}
-                  renderForms={true}
-                />
-              ))} */}
             <Page
               key={page}
               pageNumber={page}
@@ -313,16 +253,15 @@ const PdfWithState = () => {
             />
           </Document>
 
-          {signature?.id && (
-            <SignatureField
-              key={signature.id}
-              initialPosition={signature.position}
-              onSignatureUpdate={(data, position) =>
-                setSignature({ id: signature.id, data, position })
-              }
-              onRemove={() => setSignature({})}
-            />
-          )}
+          {signatures
+            .filter(sig => sig.pageNumber === page)
+            .map(sig => (
+              <SignatureField
+                key={sig.id}
+                initialPosition={sig.position}
+                onSignatureUpdate={(data, position) => updateSignature(sig.id, data, position)}
+              />
+            ))}
         </div>
       </div>
     </div >
