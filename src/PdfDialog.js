@@ -31,7 +31,7 @@ const kindActionMap = {
 };
 
 const PdfDialog = ({ open, onClose }) => {
-  const { values, pdfToTest, signature } = useValues();
+  const { values, pdfToTest, signature, signatures } = useValues();
 
   const handleSave = () => {
     const loadPdf = async () => {
@@ -51,23 +51,67 @@ const PdfDialog = ({ open, onClose }) => {
         kindActionMap[kind](field, val);
       }
 
-      let image;
-      if (signature?.data?.startsWith("data:image/png")) {
-        image = await pdfDoc.embedPng(signature.data);
-      }
-      if (image) {
-        const page = pdfDoc.getPage(0);
-        const imageDims = image.scale(1);
+      // let image;
+      // if (signature?.data?.startsWith("data:image/png")) {
+      //   image = await pdfDoc.embedPng(signature.data);
+      // }
+      // if (image) {
+      //   const page = pdfDoc.getPage(0);
+      //   const imageDims = image.scale(1);
 
-        const x = signature?.position.x || 0;
-        const y = Math.abs(signature.position?.y) - imageDims.height;
-        console.log(`Value of y is ${y}`);
+      //   const x = signature?.position.x || 0;
+      //   const y = Math.abs(signature.position?.y) - imageDims.height;
+      //   console.log(`Value of y is ${y}`);
 
-        page.drawImage(image, {
-          x,
-          y,
-          width: imageDims.width,
-          height: imageDims.height,
+      //   page.drawImage(image, {
+      //     x,
+      //     y,
+      //     width: imageDims.width,
+      //     height: imageDims.height,
+      //   });
+      // }
+      // 3) Draw each signature on its specified page
+      for (const sig of signatures) {
+        if (!sig?.data) continue;
+
+        const img = await pdfDoc.embedPng(sig.data);
+        if (!img) continue;
+
+        // Get target page (pageNumber is 1-based)
+        const pageIndex = Math.max(0, (sig.pageNumber ?? sig.page ?? 1) - 1);
+        const page = pdfDoc.getPage(pageIndex);
+        const pageWidthPts = page.getWidth();
+        const pageHeightPts = page.getHeight();
+
+        // Desired drawn size; keep 1:1 with source pixels unless you store explicit width/height.
+        const { width: imgW, height: imgH } = img.scale(1);
+
+        // If your stored position is in screen (CSS px) relative to a rendered page,
+        // convert by scaling from rendered size -> PDF size.
+        // Optional: if you saved the render size when placing the signature, use it here:
+        // sig.renderSize = { width, height }  // add this when you place the sig
+        const renderW = sig.renderSize?.width ?? pageWidthPts;   // fallback: assume 1:1
+        const renderH = sig.renderSize?.height ?? pageHeightPts; // fallback: assume 1:1
+
+        // Scale factors (screen px -> PDF pts)
+        const sx = pageWidthPts / renderW;
+        const sy = pageHeightPts / renderH;
+
+        // Your SignatureField used top-left origin. PDF uses bottom-left.
+        // Convert: pdfX = x * sx
+        //          pdfY = pageHeight - ((y + imgH_screen) * sy)
+        // If your SignatureField stored negative y (e.g., dragging math), normalize it first.
+        const screenX = sig.position?.x ?? 0;
+        const screenY = Math.max(0, sig.position?.y ?? 0);
+
+        const pdfX = screenX * sx;
+        const pdfY = pageHeightPts - (screenY + imgH) * sy;
+
+        page.drawImage(img, {
+          x: pdfX,
+          y: pdfY,
+          width: imgW * sx,   // scale image to match page scaling
+          height: imgH * sy,
         });
       }
 
